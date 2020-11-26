@@ -23,7 +23,7 @@ function askCreate(url) {
     iframe.style.right = "0px";
     iframe.style.zIndex = "9000000000000000001";
     iframe.frameBorder = "none";
-    iframe.src = 'create-page.html?url=' + encodeURIComponent(url);
+    iframe.src = browser.runtime.getURL('create-page.html?url=' + encodeURIComponent(url));
 
     document.body.appendChild(iframe);
 }

@@ -138,7 +138,7 @@ async function updateContentByUrl(url) {
     editList.innerHTML += `<li><a target="_blank" href="${safe_attrs(everipediaUrl)}">${safe_tags(url)}</a></li>`;
   } else {
     for(suburl of urls) _addUrl(suburl);
-    // preventDefault is broken if done earlier
+    // preventDefault is broken if done earlier // FIXME: Bug if clicked before preventDefault() is added.
     for(let i = 0; i < urls.length; ++i) {
       editList.childNodes[i].firstChild.onclick = event => { event.preventDefault(); _newPagePopup(urls[i]); };
     }

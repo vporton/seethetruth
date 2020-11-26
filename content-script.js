@@ -13,8 +13,24 @@ function pageName(url) {
 }
 
 function askCreate(url) {
-    const html = `<p>Open <a href='https://everipedia.com'>Everipedia</a>, click "Create New Wiki" and enter
-        <code>${safe_tags(pageName(url))}</code> as the page name.`;
+    const html = `<html>
+        <script>
+        function copyToClipboard(str) {
+            const el = document.createElement('textarea');
+            el.value = str;
+            el.setAttribute('readonly', '');
+            el.style.position = 'absolute';
+            el.style.left = '-9999px';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
+        </script>
+        <p>Open <a href='https://everipedia.com'>Everipedia</a>, click "Create New Wiki" and enter
+        <code>${safe_tags(pageName(url))}</code>
+        (<a href="#" onclick="copyToClipboard('${safe_attrs(pageName(url))}'); return false;">Copy</a>)
+        as the page name.`;
 
     let iframe = document.createElement('iframe'); 
     iframe.style.background = "pink";
@@ -25,7 +41,7 @@ function askCreate(url) {
     iframe.style.right = "0px";
     iframe.style.zIndex = "9000000000000000001";
     iframe.frameBorder = "none";
-    iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(html);
+    iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
 
     document.body.appendChild(iframe);
 }

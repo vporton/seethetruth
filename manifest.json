@@ -25,11 +25,11 @@
           "19": "icons/seethetruth-19.png",
           "38": "icons/seethetruth-48.png"
         },
-        "default_title": "Whereami?"
+        "default_title": "Site information"
     },      
 
     "sidebar_action": {
-        "default_title": "See The Truth!",
+        "default_title": "Truth about the site",
         "default_panel": "sidebar.html",
         "default_icon": "icons/seethetruth-48.png"
     },

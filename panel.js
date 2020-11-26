@@ -64,13 +64,14 @@ function toHtml(j) {
 }
 
 function _addUrl(url) {
-  const everipediaUrl = "https://everipedia.org/wiki/lang_en/" + encodeURIComponent(url);
-  
+  const encoded = encodeURIComponent(url).replace(/\//g, '%2F');
+
+  const everipediaUrl = "https://everipedia.org/wiki/lang_en/" + encoded;
   editList.innerHTML += `<li><a target="_blank" href="${safe_attrs(everipediaUrl)}">${safe_tags(url)}</a></li>`;
 
   if(contentBox.innerHTML === '') return;
 
-  fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encodeURIComponent(url))
+  fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encoded)
     .then(async html => {
       if(html.status == 200) {
         contentBox.innerHTML = toHtml((await html.json()).page_body);

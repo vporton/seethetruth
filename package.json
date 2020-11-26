@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@dfuse/client": "^0.3.17",
     "web-ext": "^5.4.0"
   }
 }

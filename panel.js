@@ -134,8 +134,9 @@ async function updateContentByUrl(url) {
   const urls = _buildUrlsList(url);
 
   const doFetch = function(i) {
-    const encoded = pageName(urls[i]);
+    const encoded = pageName(urls[i]).replace(/%/g, '_u_').replace(/\./g, '');
 
+    console.log("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encoded)
     return fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encoded)
       .then(async html => {
         if(html.status === 200) {

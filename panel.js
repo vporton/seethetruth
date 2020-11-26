@@ -66,15 +66,13 @@ function toHtml(j) {
 function _newPagePopup(url) {
   browser.tabs.query({windowId: myWindowId, active: true})
     .then((tabs) => {
-      chrome.tabs.sendMessage(tab.id, {kind: "askCreate", url});
+      chrome.tabs.sendMessage(tabs[0].id, {kind: "askCreate", url});
     });
 }
 
 function _addUrl(url) {
-  const encoded = encodeURIComponent(url).replace(/\//g, '%2F');
-
   editList.innerHTML +=
-    `<li><a target="_blank" href="#" onclick="_newPagePopup('${safe_tags(url)}'); return false">${safe_tags(url)}</a></li>`;
+    `<li><a target="_blank" href="#">${safe_tags(url)}</a></li>`;
 
   if(contentBox.innerHTML === '') return;
 }
@@ -135,6 +133,11 @@ async function updateContentByUrl(url) {
     editList.innerHTML += `<li><a target="_blank" href="${safe_attrs(everipediaUrl)}">${safe_tags(url)}</a></li>`;
   } else {
     for(suburl of urls) _addUrl(suburl);
+    // preventDefault is broken if done earlier
+    for(let i = 0; i < urls.length; ++i) {
+      editList.childNodes[i].firstChild.onclick = event => { event.preventDefault(); _newPagePopup(urls[i]); };
+    }
+
     contentBox.innerHTML = "There is no information about this page.";
   }
 }
@@ -180,7 +183,6 @@ if(window.browser) {
 }
 
 async function handleMessage(request, sender, sendResponse) {
-  console.log('rrr', request)
   await updateContentByUrl(request.url);
 }
 

@@ -1,5 +1,6 @@
 var myWindowId;
 const contentBox = document.querySelector("#content");
+const editList = document.querySelector("#editList");
 
 function safe_tags(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -62,6 +63,28 @@ function toHtml(j) {
   return result;
 }
 
+function updateContentByUrl(url) {
+  if(url !== undefined) {
+    editList.innerHTML = `<li>${safe_tags(url)}</li>`;
+
+    fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encodeURIComponent(url))
+      .then(async html => {
+        if(html.status == 200) {
+          contentBox.innerHTML = toHtml((await html.json()).page_body);
+        } else {
+          contentBox.innerHTML = "There is no information about this page.";
+        }
+      })
+      .catch((e) => {
+        console.log(e)
+        contentBox.innerHTML = "There is no information about this page.";
+      });
+  } else {
+    editList.innerHTML = '';
+    contentBox.innerHTML = '';
+  }
+}
+
 /*
 Update the sidebar's content.
 1) Get the active tab in this sidebar's window.
@@ -69,44 +92,38 @@ Update the sidebar's content.
 3) Put it in the content box.
 */
 function updateContent() {
-  // chrome.tabs.query({windowId: myWindowId, active: true})
-  //   // .then((tabs) => {
-  //   //   return browser.storage.local.get(tabs[0].url);
-  //   // })
-  //   .then((tabs) => {
-      const url = window.myParentUrl;
-      fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encodeURIComponent(url))
-        .then(async html => {
-          if(html.status == 200) {
-            contentBox.innerHTML = toHtml((await html.json()).page_body);
-          } else {
-            contentBox.innerHTML = "There is no information about this page.";
-          }
-        })
-        .catch((e) => {
-          console.log(e)
-          contentBox.innerHTML = "There is no information about this page.";
-        });
-    // });
+  if(window.browser) {
+    browser.tabs.query({windowId: myWindowId, active: true})
+      // .then((tabs) => {
+      //   return browser.storage.local.get(tabs[0].url);
+      // })
+      .then((tabs) => {
+        updateContentByUrl(tabs[0].url);
+      });
+  } else {
+    updateContentByUrl(window.myParentUrl);
+  }
 }
 
-updateContent();
+// updateContent();
 
-/*
-Update content when a new tab becomes active.
-*/
-// chrome.tabs.onActivated.addListener(updateContent);
+if(window.browser) {
+  /*
+  Update content when a new tab becomes active.
+  */
+  chrome.tabs.onActivated.addListener(updateContent);
 
-/*
-Update content when a new page is loaded into a tab.
-*/
-// chrome.tabs.onUpdated.addListener(updateContent);
+  /*
+  Update content when a new page is loaded into a tab.
+  */
+  chrome.tabs.onUpdated.addListener(updateContent);
 
-/*
-When the sidebar loads, get the ID of its window,
-and update its content.
-*/
-// chrome.windows.getCurrent({populate: true}).then((windowInfo) => {
-//   myWindowId = windowInfo.id;
-//   updateContent();
-// });
+  /*
+  When the sidebar loads, get the ID of its window,
+  and update its content.
+  */
+  browser.windows.getCurrent({populate: true}).then((windowInfo) => {
+    myWindowId = windowInfo.id;
+    updateContent();
+  });
+}

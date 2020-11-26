@@ -4,7 +4,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
     }
 })
 
-var iframe = document.createElement('iframe'); 
+let iframe = document.createElement('iframe'); 
 iframe.style.background = "lightgray";
 iframe.style.height = "100%";
 iframe.style.width = "0px";
@@ -15,7 +15,9 @@ iframe.style.zIndex = "9000000000000000000";
 iframe.frameBorder = "none"; 
 iframe.src = chrome.runtime.getURL("sidebar.html") // doesn't work in Firefox
 
-document.body.appendChild(iframe);
+window.addEventListener('load', () => {
+    document.body.appendChild(iframe);
+});
 
 function toggle(url){
     iframe.myParentUrl = url;

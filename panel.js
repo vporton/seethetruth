@@ -66,17 +66,16 @@ function toHtml(j) {
 function _addUrl(url) {
   editList.innerHTML += `<li><a target="_blank" href="${safe_attrs(url)}">${safe_tags(url)}</a></li>`;
 
+  if(contentBox.innerHTML === '') return;
+
   fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encodeURIComponent(url))
     .then(async html => {
       if(html.status == 200) {
         contentBox.innerHTML = toHtml((await html.json()).page_body);
-      } else {
-        contentBox.innerHTML = "There is no information about this page.";
       }
     })
     .catch((e) => {
       console.log(e)
-      contentBox.innerHTML = "There is no information about this page.";
     });
 }
 
@@ -103,6 +102,9 @@ function updateContentByUrl(url) {
       }
       url2 = url3;
     }
+  }
+  if(contentBox.innerHTML === '') {
+    contentBox.innerHTML = "There is no information about this page.";
   }
 }
 

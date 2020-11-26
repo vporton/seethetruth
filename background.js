@@ -1,4 +1,5 @@
 function doLoadSidebar() {
+  console.log('doLoadSidebar')
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
     const tab = tabs[0];
     if(!window.browser) {
@@ -11,18 +12,21 @@ function doLoadSidebar() {
   });
 }
 
-chrome.browserAction.onClicked.addListener(function(tab){
-  doLoadSidebar();
-  return true;
-});
-
 if(window.browser) {
   browser.sidebarAction.setPanel({panel: 'sidebar.html'});
 
-  // chrome.tabs.onActivated.addListener(doLoadSidebar);
-  chrome.tabs.onUpdated.addListener(doLoadSidebar);
+  chrome.tabs.onActivated.addListener(doLoadSidebar);
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if(changeInfo.status === 'loading' && changeInfo.url !== undefined) doLoadSidebar();
+  });
 
   browser.browserAction.onClicked.addListener(() => {
     browser.sidebarAction.toggle();
+    return true;
+  });
+} else {
+  chrome.browserAction.onClicked.addListener(function(tab){
+    doLoadSidebar();
+    return true;
   });
 }

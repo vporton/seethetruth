@@ -1,3 +1,5 @@
+* If a page reloaded several times quickly, URLs list is repeated several times.
+
 * browser./chrome.
 
 * Use HTML parent relation if available.

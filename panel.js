@@ -134,7 +134,7 @@ async function updateContentByUrl(url) {
   const urls = _buildUrlsList(url);
 
   const doFetch = function(i) {
-    const encoded = pageName(urls[i]).replace(/%/g, '_u_').replace(/\./g, '');
+    const encoded = pageName(urls[i]).replace(/%/g, '_u_').replace(/\./g, ''); // duplicate code
 
     console.log("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encoded)
     return fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encoded)
@@ -159,8 +159,10 @@ async function updateContentByUrl(url) {
 
   const fetchResult = await doFetch(0);
   if(fetchResult) {
+    const encoded = pageName(url).replace(/%/g, '_u_').replace(/\./g, ''); // duplicate code
     const everipediaUrl = "https://everipedia.org/wiki/lang_en/" + encoded;
     editList.innerHTML += `<li><a target="_blank" href="${safe_attrs(everipediaUrl)}">${safe_tags(url)}</a></li>`;
+    console.log(editList.innerHTML);
   } else {
     for(suburl of urls) _addUrl(suburl);
     // preventDefault is broken if done earlier // FIXME: Bug if clicked before preventDefault() is added.

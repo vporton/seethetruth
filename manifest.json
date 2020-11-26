@@ -14,7 +14,7 @@
       "matches": [
           "https://*/*"
       ],
-      "js": ["jquery-1.11.3.js", "content-script.js"]
+      "js": ["content-script.js"]
     }],
     "background": {
       "scripts":["background.js"]

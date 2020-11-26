@@ -1,5 +1,7 @@
 chrome.browserAction.onClicked.addListener(function(tab){
-  chrome.tabs.sendMessage(tab.id, "toggle");
+  // chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+    chrome.tabs.sendMessage(tab.id, {kind: "toggle", url: tab.url}); // FIXME: tabs -> runtime
+  // });
   return true;
 });
 

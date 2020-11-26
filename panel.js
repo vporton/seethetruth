@@ -13,8 +13,8 @@ function _processText(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
     .replace(/\*(.*?)\*/g, '<i>$1</i>')
-    .replace(/\[\[LINK\|([^|]*)\|([^|]*)\|([^|]*)\]\]/g, "<a href='https://everipedia.org/wiki/$1/$2'>$3</a>")
-    .replace(/\[\[CITE\|([^|]*)\|([^|]*)\]\]/g, "<a href='$2'>[$1]</a>");
+    .replace(/\[\[LINK\|([^|]*)\|([^|]*)\|([^|]*)\]\]/g, "<a target='_blank' href='https://everipedia.org/wiki/$1/$2'>$3</a>")
+    .replace(/\[\[CITE\|([^|]*)\|([^|]*)\]\]/g, "<a target='_blank' href='$2'>[$1]</a>");
 }
 
 function _toHtmlItem(j) {
@@ -32,7 +32,6 @@ function _toHtmlItem(j) {
       : "";
     const tag_type = j.tag_type !== undefined ? j.tag_type : j.type;
     if(tag_type === 'table') {
-      console.log(j.items[0].tbody)
       return _toHtmlItem(j.items[0].thead) + _toHtmlItem(j.items[0].tbody) + _toHtmlItem(j.items[0].tfoot);
     }
     return (j.content || j.items || j.rows || j.cells)
@@ -70,11 +69,11 @@ Update the sidebar's content.
 3) Put it in the content box.
 */
 function updateContent() {
-  browser.tabs.query({windowId: myWindowId, active: true})
-    // .then((tabs) => {
-    //   return browser.storage.local.get(tabs[0].url);
-    // })
-    .then((tabs) => {
+  // chrome.tabs.query({windowId: myWindowId, active: true})
+  //   // .then((tabs) => {
+  //   //   return browser.storage.local.get(tabs[0].url);
+  //   // })
+  //   .then((tabs) => {
       fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/Limit_(mathematics)"/*encodeURIComponent(tabs[0].url)*/)
         .then(async html => {
           contentBox.innerHTML = toHtml((await html.json()).page_body);
@@ -83,24 +82,24 @@ function updateContent() {
           console.log(e)
           contentBox.textContent = "There is no information about this page.";
         });
-    });
+    // });
 }
 
 /*
 Update content when a new tab becomes active.
 */
-browser.tabs.onActivated.addListener(updateContent);
+chrome.tabs.onActivated.addListener(updateContent);
 
 /*
 Update content when a new page is loaded into a tab.
 */
-browser.tabs.onUpdated.addListener(updateContent);
+chrome.tabs.onUpdated.addListener(updateContent);
 
 /*
 When the sidebar loads, get the ID of its window,
 and update its content.
 */
-browser.windows.getCurrent({populate: true}).then((windowInfo) => {
-  myWindowId = windowInfo.id;
-  updateContent();
-});
+// chrome.windows.getCurrent({populate: true}).then((windowInfo) => {
+//   myWindowId = windowInfo.id;
+//   updateContent();
+// });

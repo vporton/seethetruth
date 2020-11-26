@@ -22,16 +22,21 @@ function _toHtmlItem(j) {
     return _processText(j.text);
   } else if(j.type === 'text') {
     return j.content.map(c => _toHtmlItem(c)).join('');
-  } else if(j.type === 'tag' || j.type === 'list_item' || j.type === 'dl' || j.type === 'samp' || j.tag_type !== undefined) {
+  } else if(j.type === 'tag' || j.type === 'list_item' || j.type === 'dl' || j.type === 'samp' || j.tag_type !== undefined
+    || j.rows !== undefined || j.cells !== undefined)
+  {
     const attrs = j.attrs !== undefined
       ? " " + Object.entries(j.attrs)
         .map(x => `${x[0].replace(/^className$/, 'class')}=${x[0] === 'href' ? x[1].replace(/^\//, "https://everipedia.org/") : x[0] == 'style' ? Object.entries(x[0]).map(y => `${y[0]}='${safe_attrs(y[1])}'`) : safe_attrs(`'${x[1]}'`)}`)
         .join(' ')
       : "";
     const tag_type = j.tag_type !== undefined ? j.tag_type : j.type;
-    if(tag_type === 'img') console.log(`<${tag_type}${attrs}/>`)
-    return (j.content || j.items)
-      ? `<${tag_type}${attrs}>${(j.content ? j.content : j.items).map(c => _toHtmlItem(c)).join('')}</${tag_type}>`
+    if(tag_type === 'table') {
+      console.log(j.items[0].tbody)
+      return _toHtmlItem(j.items[0].thead) + _toHtmlItem(j.items[0].tbody) + _toHtmlItem(j.items[0].tfoot);
+    }
+    return (j.content || j.items || j.rows || j.cells)
+      ? `<${tag_type}${attrs}>${(j.content ? j.content : j.items ? j.items : j.rows ? j.rows : j.cells).map(c =>   _toHtmlItem(c)).join('')}</${tag_type}>`
       : j.sentences
       ? `<${tag_type}${attrs}>${j.sentences.map(c => _processText(c.text)).join('')}</${tag_type}>`
       : `<${tag_type}${attrs}/>`;
@@ -45,8 +50,12 @@ function toHtml(j) {
   for(a of j) {
     for(b of a.paragraphs) {
       result += `<${safe_tags(b.tag_type)}>`;
-      for(item of b.items) {
-        result += _toHtmlItem(item);
+      if(b.tag_type === 'table') {
+        result += _toHtmlItem(b);
+      } else {
+        for(item of b.items) {
+          result += _toHtmlItem(item);
+        }
       }
       result += `</${safe_tags(b.tag_type)}>`;
     }

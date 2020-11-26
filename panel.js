@@ -102,13 +102,18 @@ function _buildUrlsList(url) {
   return list;
 }
 
+// TODO: Duplicate code.
+function pageName(url) {
+  return encodeURIComponent(url).replace(/\//g, '%2F');
+}
+
 async function updateContentByUrl(url) {
   editList.innerHTML = '';
   contentBox.innerHTML = '';
   const urls = _buildUrlsList(url);
 
   const doFetch = function(i) {
-    const encoded = encodeURIComponent(urls[i]).replace(/\//g, '%2F');
+    const encoded = pageName(urls[i]);
 
     return fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encoded)
       .then(async html => {

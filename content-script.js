@@ -1,8 +1,40 @@
+// TODO: Duplicate code
+function safe_tags(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function safe_attrs(str) {
+  return safe_tags(str).replace(/"/g,'&quot;').replace(/'<'/g,'&apos;');
+}
+
+// TODO: Duplicate code.
+function pageName(url) {
+    return encodeURIComponent(url).replace(/\//g, '%2F');
+}
+
+function askCreate(url) {
+    const html = `<p>Open <a href='https://everipedia.com'>Everipedia</a>, click "Create New Wiki" and enter
+        <code>${safe_tags(pageName(url))}</code> as the page name.`;
+
+    let iframe = document.createElement('iframe'); 
+    iframe.style.background = "pink";
+    iframe.style.height = "50%";
+    iframe.style.width = "50%";
+    iframe.style.position = "fixed";
+    iframe.style.top = "0px";
+    iframe.style.right = "0px";
+    iframe.style.zIndex = "9000000000000000001";
+    iframe.frameBorder = "none";
+    iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(html);
+
+    document.body.appendChild(iframe);
+}
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
     if(request.kind == "toggle") {
         toggle(request.url);
     } else if(request.kind == "askCreate") {
-        alert(request.url);
+        askCreate(request.url);
     }
 })
 

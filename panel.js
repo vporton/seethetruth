@@ -105,7 +105,10 @@ function updateContent() {
   }
 }
 
-// updateContent();
+if(!window.browser) {
+  const url = decodeURIComponent(window.location.href.match(/\burl=([^&;]*)/)[1]);
+  updateContentByUrl(url);
+}
 
 if(window.browser) {
   /*

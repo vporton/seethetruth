@@ -13,16 +13,15 @@ iframe.style.top = "0px";
 iframe.style.right = "0px";
 iframe.style.zIndex = "9000000000000000000";
 iframe.frameBorder = "none"; 
-iframe.src = chrome.runtime.getURL("sidebar.html") // doesn't work in Firefox
 
 window.addEventListener('load', () => {
     document.body.appendChild(iframe);
 });
 
 function toggle(url){
-    iframe.myParentUrl = url;
     if(iframe.style.width == "0px"){
         iframe.style.width="400px";
+        iframe.src = chrome.runtime.getURL("sidebar.html?url=") + encodeURIComponent(url)
     }
     else{
         iframe.style.width="0px";

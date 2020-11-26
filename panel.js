@@ -77,7 +77,6 @@ function updateContent() {
       const url = window.myParentUrl;
       fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encodeURIComponent(url))
         .then(async html => {
-          alert(html.status)
           if(html.status == 200) {
             contentBox.innerHTML = toHtml((await html.json()).page_body);
           } else {

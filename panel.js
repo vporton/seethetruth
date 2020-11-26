@@ -63,35 +63,30 @@ function toHtml(j) {
   return result;
 }
 
-function _addUrl(url) {
-  const encoded = encodeURIComponent(url).replace(/\//g, '%2F');
-
-  const everipediaUrl = "https://everipedia.org/wiki/lang_en/" + encoded;
-  editList.innerHTML += `<li><a target="_blank" href="${safe_attrs(everipediaUrl)}">${safe_tags(url)}</a></li>`;
-
-  if(contentBox.innerHTML === '') return;
-
-  fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encoded)
-    .then(async html => {
-      if(html.status == 200) {
-        contentBox.innerHTML = toHtml((await html.json()).page_body);
-      }
-    })
-    .catch((e) => {
-      console.log(e)
+function _newPagePopup(url) {
+  browser.tabs.query({windowId: myWindowId, active: true})
+    .then((tabs) => {
+      chrome.tabs.sendMessage(tab.id, {kind: "askCreate", url});
     });
 }
 
-function updateContentByUrl(url) {
-  editList.innerHTML = '';
-  contentBox.innerHTML = '';
+function _addUrl(url) {
+  const encoded = encodeURIComponent(url).replace(/\//g, '%2F');
+
+  editList.innerHTML +=
+    `<li><a target="_blank" href="#" onclick="_newPagePopup('${safe_tags(url)}'); return false">${safe_tags(url)}</a></li>`;
+
+  if(contentBox.innerHTML === '') return;
+}
+
+function _buildUrlsList(url) {
+  let list = [];
   if(url !== undefined) {
-    _addUrl(url);
+    list.push(url);
     let url2 = url.replace(/\?.*/, '');
-    if(url2 !== url) _addUrl(url2);
+    if(url2 !== url) list.push(url2);
     for(;;) {
       const url3 = url2.replace(/([^\/]+|[^\/]*\/)$/, '');
-      console.log('url3', url3)
       try {
         new URL(url3);
       }
@@ -99,14 +94,47 @@ function updateContentByUrl(url) {
         break;
       }
       if(url3 !== url2) {
-        _addUrl(url3);
+        list.push(url3);
       } else {
         break;
       }
       url2 = url3;
     }
   }
-  if(contentBox.innerHTML === '') {
+  return list;
+}
+
+async function updateContentByUrl(url) {
+  editList.innerHTML = '';
+  contentBox.innerHTML = '';
+  const urls = _buildUrlsList(url);
+
+  const doFetch = function(i) {
+    const encoded = encodeURIComponent(urls[i]).replace(/\//g, '%2F');
+
+    return fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encoded)
+      .then(async html => {
+        if(html.status == 200) {
+          contentBox.innerHTML = toHtml((await html.json()).page_body);
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .catch(e => {
+        if(i !== 0) {
+          return doFetch(urls[i-1]);
+        }
+        return false;
+      });
+  }
+
+  const fetchResult = await doFetch(0);
+  if(fetchResult) {
+    const everipediaUrl = "https://everipedia.org/wiki/lang_en/" + encoded;
+    editList.innerHTML += `<li><a target="_blank" href="${safe_attrs(everipediaUrl)}">${safe_tags(url)}</a></li>`;
+  } else {
+    for(suburl of urls) _addUrl(suburl);
     contentBox.innerHTML = "There is no information about this page.";
   }
 }
@@ -117,48 +145,43 @@ Update the sidebar's content.
 2) Get its stored content.
 3) Put it in the content box.
 */
-function updateContent() {
+async function updateContent() {
   if(window.browser) {
     browser.tabs.query({windowId: myWindowId, active: true})
       // .then((tabs) => {
       //   return browser.storage.local.get(tabs[0].url);
       // })
-      .then((tabs) => {
+      .then(async (tabs) => {
         const url = tabs[0].url;
         if(!/^(about|file):/.test(url)) {
-          updateContentByUrl(url);
+          await updateContentByUrl(url);
         } else {
           editList.innerHTML = '';
           contentBox.innerHTML = '';
         }
       });
   } else {
-    updateContentByUrl(window.myParentUrl);
+    await updateContentByUrl(window.myParentUrl);
   }
 }
 
 if(!window.browser) {
   const url = decodeURIComponent(window.location.href.match(/\burl=([^&;]*)/)[1]);
-  updateContentByUrl(url);
+  document.addEventListener('load', async () => {
+    await updateContentByUrl(url);
+  });
 }
 
 if(window.browser) {
-  /*
-  Update content when a new tab becomes active.
-  */
-  chrome.tabs.onActivated.addListener(updateContent);
-
-  /*
-  Update content when a new page is loaded into a tab.
-  */
-  chrome.tabs.onUpdated.addListener(updateContent);
-
-  /*
-  When the sidebar loads, get the ID of its window,
-  and update its content.
-  */
-  browser.windows.getCurrent({populate: true}).then((windowInfo) => {
+  browser.windows.getCurrent({populate: true}).then(async (windowInfo) => {
     myWindowId = windowInfo.id;
-    updateContent();
+    await updateContent();
   });
 }
+
+async function handleMessage(request, sender, sendResponse) {
+  console.log('rrr', request)
+  await updateContentByUrl(request.url);
+}
+
+browser.runtime.onMessage.addListener(handleMessage);

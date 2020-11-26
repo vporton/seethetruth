@@ -82,7 +82,7 @@ function _addUrl(url) {
 function updateContentByUrl(url) {
   editList.innerHTML = '';
   contentBox.innerHTML = '';
-  if(url !== undefined) { // TODO: Use HTML parent relation if available
+  if(url !== undefined) {
     _addUrl(url);
     let url2 = url.replace(/\?.*/, '');
     if(url2 !== url) _addUrl(url2);
@@ -121,7 +121,13 @@ function updateContent() {
       //   return browser.storage.local.get(tabs[0].url);
       // })
       .then((tabs) => {
-        updateContentByUrl(tabs[0].url);
+        const url = tabs[0].url;
+        if(!/^(about|file):/.test(url)) {
+          updateContentByUrl(url);
+        } else {
+          editList.innerHTML = '';
+          contentBox.innerHTML = '';
+        }
       });
   } else {
     updateContentByUrl(window.myParentUrl);

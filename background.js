@@ -1,5 +1,5 @@
 function doLoadSidebar() {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
     const tab = tabs[0];
     if(!window.browser) {
       // Message to content script

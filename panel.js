@@ -63,11 +63,32 @@ function toHtml(j) {
   return result;
 }
 
+// Used only in Chrome
+// FIXME: duplicate code
+function askCreate(url) {
+  let iframe = document.createElement('iframe'); 
+  iframe.style.background = "pink";
+  iframe.style.height = "50%";
+  iframe.style.width = "50%";
+  iframe.style.position = "fixed";
+  iframe.style.top = "0px";
+  iframe.style.right = "0px";
+  iframe.style.zIndex = "9000000000000000001";
+  iframe.frameBorder = "none";
+  iframe.src = 'create-page.html?url=' + encodeURIComponent(url);
+
+  document.body.appendChild(iframe);
+}
+
 function _newPagePopup(url) {
-  browser.tabs.query({windowId: myWindowId, active: true})
-    .then((tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, {kind: "askCreate", url});
-    });
+  if(window.browser) {
+    browser.tabs.query({windowId: myWindowId, active: true})
+      .then((tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, {kind: "askCreate", url});
+      });
+  } else {
+    askCreate(url);
+  }
 }
 
 function _addUrl(url) {
@@ -117,16 +138,19 @@ async function updateContentByUrl(url) {
 
     return fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encoded)
       .then(async html => {
-        if(html.status == 200) {
+        if(html.status === 200) {
           contentBox.innerHTML = toHtml((await html.json()).page_body);
           return true;
         } else {
+          if(i !== urls.length - 1) {
+            return doFetch(i + 1);
+          }
           return false;
         }
       })
       .catch(e => {
-        if(i !== 0) {
-          return doFetch(urls[i-1]);
+        if(i !== urls.length - 1) {
+          return doFetch(i + 1);
         }
         return false;
       });
@@ -175,7 +199,7 @@ async function updateContent() {
 
 if(!window.browser) {
   const url = decodeURIComponent(window.location.href.match(/\burl=([^&;]*)/)[1]);
-  document.addEventListener('load', async () => {
+  window.addEventListener('load', async () => {
     await updateContentByUrl(url);
   });
 }
@@ -191,4 +215,4 @@ async function handleMessage(request, sender, sendResponse) {
   await updateContentByUrl(request.url);
 }
 
-browser.runtime.onMessage.addListener(handleMessage);
+chrome.runtime.onMessage.addListener(handleMessage);

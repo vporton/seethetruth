@@ -34,7 +34,7 @@
         "default_icon": "icons/seethetruth-48.png"
     },
 
-    "web_accessible_resources": ["sidebar.html"],
+    "web_accessible_resources": ["sidebar.html", "create-page.html"],
 
     "permissions": [
       "tabs"

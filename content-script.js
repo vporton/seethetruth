@@ -12,26 +12,8 @@ function pageName(url) {
     return encodeURIComponent(url).replace(/\//g, '%2F');
 }
 
+// FIXME: duplicate code
 function askCreate(url) {
-    const html = `<html>
-        <script>
-        function copyToClipboard(str) {
-            const el = document.createElement('textarea');
-            el.value = str;
-            el.setAttribute('readonly', '');
-            el.style.position = 'absolute';
-            el.style.left = '-9999px';
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-        }
-        </script>
-        <p>Open <a href='https://everipedia.com'>Everipedia</a>, click "Create New Wiki" and enter
-        <code>${safe_tags(pageName(url))}</code>
-        (<a href="#" onclick="copyToClipboard('${safe_attrs(pageName(url))}'); return false;">Copy</a>)
-        as the page name.`;
-
     let iframe = document.createElement('iframe'); 
     iframe.style.background = "pink";
     iframe.style.height = "50%";
@@ -41,7 +23,7 @@ function askCreate(url) {
     iframe.style.right = "0px";
     iframe.style.zIndex = "9000000000000000001";
     iframe.frameBorder = "none";
-    iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+    iframe.src = 'create-page.html?url=' + encodeURIComponent(url);
 
     document.body.appendChild(iframe);
 }
@@ -54,8 +36,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
     }
 })
 
+let iframe = null;
 if(!window.browser) {
-    let iframe = document.createElement('iframe'); 
+    iframe = document.createElement('iframe'); 
     iframe.style.background = "lightgray";
     iframe.style.height = "100%";
     iframe.style.width = "0px";
@@ -70,7 +53,7 @@ if(!window.browser) {
     });
 }
 
-function toggle(url){
+function toggle(url) {
     if(iframe.style.width == "0px"){
         iframe.style.width="400px";
         iframe.src = chrome.runtime.getURL("sidebar.html?url=") + encodeURIComponent(url)

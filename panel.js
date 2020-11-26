@@ -63,25 +63,46 @@ function toHtml(j) {
   return result;
 }
 
-function updateContentByUrl(url) {
-  if(url !== undefined) {
-    editList.innerHTML = `<li>${safe_tags(url)}</li>`;
+function _addUrl(url) {
+  editList.innerHTML += `<li><a target="_blank" href="${safe_attrs(url)}">${safe_tags(url)}</a></li>`;
 
-    fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encodeURIComponent(url))
-      .then(async html => {
-        if(html.status == 200) {
-          contentBox.innerHTML = toHtml((await html.json()).page_body);
-        } else {
-          contentBox.innerHTML = "There is no information about this page.";
-        }
-      })
-      .catch((e) => {
-        console.log(e)
+  fetch("https://api.everipedia.org/v2/wiki/slug/lang_en/" + encodeURIComponent(url))
+    .then(async html => {
+      if(html.status == 200) {
+        contentBox.innerHTML = toHtml((await html.json()).page_body);
+      } else {
         contentBox.innerHTML = "There is no information about this page.";
-      });
-  } else {
-    editList.innerHTML = '';
-    contentBox.innerHTML = '';
+      }
+    })
+    .catch((e) => {
+      console.log(e)
+      contentBox.innerHTML = "There is no information about this page.";
+    });
+}
+
+function updateContentByUrl(url) {
+  editList.innerHTML = '';
+  contentBox.innerHTML = '';
+  if(url !== undefined) { // TODO: Use HTML parent relation if available
+    _addUrl(url);
+    let url2 = url.replace(/\?.*/, '');
+    if(url2 !== url) _addUrl(url2);
+    for(;;) {
+      const url3 = url2.replace(/([^\/]+|[^\/]*\/)$/, '');
+      console.log('url3', url3)
+      try {
+        new URL(url3);
+      }
+      catch(_) {
+        break;
+      }
+      if(url3 !== url2) {
+        _addUrl(url3);
+      } else {
+        break;
+      }
+      url2 = url3;
+    }
   }
 }
 

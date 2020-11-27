@@ -8,7 +8,7 @@ const url = decodeURIComponent(window.location.href.match(/\burl=([^&;]*)/)[1]);
 window.addEventListener('load', () => {
     document.getElementById('code').innerText = pageName(url);
     document.getElementById('copy').onclick = copy;
-    if(!window.browser) {
+    if(!window.browser) { // FIXME: Should work also on Firefox.
         document.getElementById('close').onclick = () => {
             chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
                 chrome.tabs.sendMessage(tabs[0].id, {kind: "closeAskCreate", url});

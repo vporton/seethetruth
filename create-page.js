@@ -8,6 +8,15 @@ const url = decodeURIComponent(window.location.href.match(/\burl=([^&;]*)/)[1]);
 window.addEventListener('load', () => {
     document.getElementById('code').innerText = pageName(url);
     document.getElementById('copy').onclick = copy;
+    if(!window.browser) {
+        document.getElementById('close').onclick = () => {
+            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+                chrome.tabs.sendMessage(tabs[0].id, {kind: "closeAskCreate", url});
+            });
+            return false;
+        };
+        document.getElementById('close').style.display = 'block';
+    }
 });
 
 function copyToClipboard(str) {

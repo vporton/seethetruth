@@ -63,32 +63,14 @@ function toHtml(j) {
   return result;
 }
 
-// Used only in Chrome
-// FIXME: duplicate code
-function askCreate(url) {
-  let iframe = document.createElement('iframe'); 
-  iframe.style.background = "pink";
-  iframe.style.height = "50%";
-  iframe.style.width = "50%";
-  iframe.style.position = "fixed";
-  iframe.style.top = "0px";
-  iframe.style.right = "0px";
-  iframe.style.zIndex = "9000000000000000001";
-  iframe.frameBorder = "none";
-  iframe.src = 'create-page.html?url=' + encodeURIComponent(url);
-
-  document.body.appendChild(iframe);
-}
-
 function _newPagePopup(url) {
-  if(window.browser) {
-    browser.tabs.query({windowId: myWindowId, active: true})
-      .then((tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, {kind: "askCreate", url});
-      });
-  } else {
-    askCreate(url);
-  }
+  // if(window.browser) {
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, {kind: "askCreate", url});
+    });
+  // } else {
+  //   askCreate(url);
+  // }
 }
 
 function _addUrl(url) {
@@ -203,6 +185,13 @@ async function updateContent() {
 if(!window.browser) {
   const url = decodeURIComponent(window.location.href.match(/\burl=([^&;]*)/)[1]);
   window.addEventListener('load', async () => {
+    document.getElementById('close').onclick = () => {
+      chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, {kind: "closePanel", url});
+      });
+      return false;
+    };
+    document.getElementById('close').style.display = 'block';
     await updateContentByUrl(url);
   });
 }
@@ -216,6 +205,10 @@ if(window.browser) {
 
 async function handleMessage(request, sender, sendResponse) {
   await updateContentByUrl(request.url);
+}
+
+function closeWindow() {
+  window.close();
 }
 
 chrome.runtime.onMessage.addListener(handleMessage);

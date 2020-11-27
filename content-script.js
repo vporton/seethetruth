@@ -12,20 +12,22 @@ function pageName(url) {
     return encodeURIComponent(url).replace(/\//g, '%2F');
 }
 
+let askCreateIframe = null;
+
 // FIXME: duplicate code
 function askCreate(url) {
-    let iframe = document.createElement('iframe'); 
-    iframe.style.background = "pink";
-    iframe.style.height = "50%";
-    iframe.style.width = "50%";
-    iframe.style.position = "fixed";
-    iframe.style.top = "0px";
-    iframe.style.right = "0px";
-    iframe.style.zIndex = "9000000000000000001";
-    iframe.frameBorder = "none";
-    iframe.src = browser.runtime.getURL('create-page.html?url=' + encodeURIComponent(url));
+    askCreateIframe = document.createElement('iframe'); 
+    askCreateIframe.style.background = "pink";
+    askCreateIframe.style.height = "50%";
+    askCreateIframe.style.width = "100%";
+    askCreateIframe.style.position = "fixed";
+    askCreateIframe.style.top = "0px";
+    askCreateIframe.style.right = "0px";
+    askCreateIframe.style.zIndex = "9000000000000000001";
+    askCreateIframe.frameBorder = "none";
+    askCreateIframe.src = chrome.runtime.getURL('create-page.html?url=' + encodeURIComponent(url));
 
-    document.body.appendChild(iframe);
+    document.body.appendChild(askCreateIframe);
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
@@ -33,6 +35,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
         toggle(request.url);
     } else if(request.kind == "askCreate") {
         askCreate(request.url);
+    } else if(request.kind == "closePanel") {
+        iframe.style.width="0px";
+    } else if(request.kind == "closeAskCreate") {
+        askCreateIframe.parentNode.removeChild(askCreateIframe)
     }
 })
 

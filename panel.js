@@ -110,6 +110,7 @@ function pageName(url) {
   return encodeURIComponent(url).replace(/\//g, '%2F');
 }
 
+// Returns true if the first URL is existing.
 async function updateContentByUrl(url) {
   editList.innerHTML = '';
   contentBox.innerHTML = '';
@@ -126,25 +127,25 @@ async function updateContentByUrl(url) {
           return true;
         } else {
           if(i !== urls.length - 1) {
-            return doFetch(i + 1);
+            await doFetch(i + 1);
           }
           return false;
         }
       })
-      .catch(e => {
+      .catch(async e => {
         if(i !== urls.length - 1) {
-          return doFetch(i + 1);
+          await doFetch(i + 1);
         }
         return false;
       });
   }
 
   const fetchResult = await doFetch(0);
+  console.log('fetchResult', fetchResult)
   if(fetchResult) {
     const encoded = pageName(url).replace(/%/g, '_u_').replace(/\./g, ''); // duplicate code
     const everipediaUrl = "https://everipedia.org/wiki/lang_en/" + encoded;
     editList.innerHTML += `<li><a target="_blank" href="${safe_attrs(everipediaUrl)}">${safe_tags(url)}</a></li>`;
-    console.log(editList.innerHTML);
   } else {
     for(suburl of urls) _addUrl(suburl);
     // preventDefault is broken if done earlier // FIXME: Bug if clicked before preventDefault() is added.

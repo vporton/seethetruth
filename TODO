@@ -12,6 +12,4 @@
 
 * Don't distribute Makefile.
 
-* Collect donations.
-
 * In Chrome don't reload the sidebar when "ask create" popup is closed.

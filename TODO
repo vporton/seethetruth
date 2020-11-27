@@ -1,12 +1,8 @@
 * If a page reloaded several times quickly, URLs list is repeated several times.
 
-* browser./chrome.
-
 * Use HTML parent relation if available.
 
 * Better design in Chrome.
-
-* Add copy button to the URL when creating page.
 
 * Go to https://everipedia.org/ - the URL is displayed twice in the sidebar.
 

@@ -9,3 +9,5 @@
 * Don't distribute Makefile.
 
 * In Chrome don't reload the sidebar when "ask create" popup is closed.
+
+* Show a parent page description if there is no description of the current URL.

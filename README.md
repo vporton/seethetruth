@@ -1,7 +1,7 @@
 Browser extension that shows a sidebar with the community-edited truth about a site or URL!
 
 * [for Firefox](https://addons.mozilla.org/en-US/firefox/addon/see-the-truth/)
-* for Chrome (will be released soon)
+* [for Chrome](https://chrome.google.com/webstore/detail/see-the-truth/epgkkabecnmojmphohekchfigifilggf)
 
 ![Screenshot](https://raw.githubusercontent.com/vporton/seethetruth/master/screenshot.png "Screenshot in Firefox")
 

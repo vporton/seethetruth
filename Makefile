@@ -3,4 +3,4 @@
 .PHONY: all
 
 all:
-	npx web-ext build
+	npx web-ext build --overwrite-dest

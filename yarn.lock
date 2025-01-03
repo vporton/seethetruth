@@ -79,10 +79,10 @@
     node-forge "^0.10.0"
     split "~0.3.3"
 
-"@dfuse/client@^0.3.17":
-  version "0.3.17"
-  resolved "https://registry.yarnpkg.com/@dfuse/client/-/client-0.3.17.tgz#6d225394880f6e975783be7a8f7a6ebf2eae6842"
-  integrity sha512-GPF7SkqBXByF0sntScXZG0bo4j9iNGNl2UW1V9zwbx1oN8TFce+ewcp+u01QZGTxY0AVEXCVs94qWo3tjERkSA==
+"@dfuse/client@^0.3.21":
+  version "0.3.21"
+  resolved "https://registry.yarnpkg.com/@dfuse/client/-/client-0.3.21.tgz#4c292337bfa72e98a63dba621a923bc1f6992850"
+  integrity sha512-pJu+XEzBx8gEVaZaYNnUnwSMohKEQkpV9Iiz4w5myS80Vm/NAwcUcDaG/csqRpWTIw/tlD6VrHZDXoevPFgtsg==
   dependencies:
     "@types/debug" "^0.0.31"
     debug "^4.1.0"
